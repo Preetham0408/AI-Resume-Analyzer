@@ -1,4 +1,6 @@
 import streamlit as st
+from modules.pdf_parser import extract_pdf_text
+from modules.docx_parser import extract_docx_text
 
 st.set_page_config(
     page_title = "AI Resume Analyzer",
@@ -22,7 +24,21 @@ job_description = st.text_area(
     height = 250
 )
 
-if st.button("Analyze Resume"):
-    st.success("Resume uploaded sucessfully!")
+if uploaded_resume is not None:
+    if st.button("Analyze Resume"):
+        st.success("Resume uploaded successfully!")
+
+        if uploaded_resume.name.endswith(".pdf"):
+            resume_text = extract_pdf_text(uploaded_resume)
+        else:
+            resume_text = extract_docx_text(uploaded_resume)
+
+        st.subheader("Extracted Resume Text")
+
+        st.text_area(
+            "Resume Content",
+            resume_text,
+            height=300
+        )
 
 
