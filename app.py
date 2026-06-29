@@ -2,6 +2,7 @@ import streamlit as st
 from modules.pdf_parser import extract_pdf_text
 from modules.docx_parser import extract_docx_text
 from modules.text_preprocessor import clean_text
+from modules.keyword_matcher import keywords_match
 
 st.set_page_config(
     page_title = "AI Resume Analyzer",
@@ -44,28 +45,19 @@ if uploaded_resume is not None:
         clean_resume = clean_text(resume_text)
         clean_jd = clean_text(job_description)
 
-        st.subheader("Extracted Resume Text")
+        score,matched_keywords,missing_keywords = keywords_match(clean_resume,clean_jd)
 
-        st.text_area(
-            "Resume Content",
-            resume_text,
-            height=300
+        st.subheader("ATS Match Score")
+
+        st.metric(
+            label="Match Percentage",
+            value=f"{score}%"
         )
+        
+        st.subheader("Matching Keywords")
+        st.success(", ".join(matched_keywords) if matched_keywords else "No matched keywords.")
 
-        st.subheader("Cleaned Resume Text")
-
-        st.text_area(
-            "Clean Resume",
-            clean_resume,
-            height=300
-        )
-
-        st.subheader("Cleaned Job Description")
-
-        st.text_area(
-            "Clean Job Description",
-            clean_jd,
-            height=250
-        )
+        st.subheader("Missing Keywords")
+        st.warning(", ".join(missing_keywords) if missing_keywords else "No missing keywords.")
 
 
