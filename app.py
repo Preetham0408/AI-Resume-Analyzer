@@ -3,6 +3,7 @@ from modules.pdf_parser import extract_pdf_text
 from modules.docx_parser import extract_docx_text
 from modules.text_preprocessor import clean_text
 from modules.keyword_matcher import keywords_match
+from modules.skill_extractor import categorize_skills
 
 st.set_page_config(
     page_title = "AI Resume Analyzer",
@@ -46,6 +47,8 @@ if uploaded_resume is not None:
         clean_jd = clean_text(job_description)
 
         score,matched_keywords,missing_keywords = keywords_match(clean_resume,clean_jd)
+        matched_categories = categorize_skills(matched_keywords)
+        missing_categories = categorize_skills(missing_keywords)
 
         st.subheader("ATS Match Score")
 
@@ -54,10 +57,20 @@ if uploaded_resume is not None:
             value=f"{score}%"
         )
         
-        st.subheader("Matching Keywords")
-        st.success(", ".join(matched_keywords) if matched_keywords else "No matched keywords.")
+        st.subheader("Matching Skills")
+        if matched_categories:
+            for category, skills in matched_categories.items():
+                st.write(f"**{category}**")
+                st.success(", ".join(skills))
+        else:
+            st.info("No matching skills found.")
 
-        st.subheader("Missing Keywords")
-        st.warning(", ".join(missing_keywords) if missing_keywords else "No missing keywords.")
+        st.subheader("Missing Skills")
+        if missing_categories:
+            for category, skills in missing_categories.items():
+                st.write(f"**{category}**")
+                st.warning(", ".join(skills))
+        else:
+            st.success("No missing skills.")
 
 
